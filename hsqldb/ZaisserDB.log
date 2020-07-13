@@ -1,37 +1,52 @@
-/*C4*/SET SCHEMA PUBLIC
-CREATE TABLE AUTOR ( ID INT, NOMBRE VARCHAR(45) )
-DISCONNECT
-/*C5*/SET SCHEMA PUBLIC
-DISCONNECT
-/*C6*/SET SCHEMA PUBLIC
-DISCONNECT
-/*C7*/SET SCHEMA PUBLIC
-DISCONNECT
-/*C8*/SET SCHEMA PUBLIC
-DISCONNECT
-/*C3*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-/*C9*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-DISCONNECT
-/*C10*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-DISCONNECT
-/*C11*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-DISCONNECT
-/*C12*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
-COMMIT
-DISCONNECT
 /*C13*/SET SCHEMA PUBLIC
-INSERT INTO AUTOR VALUES(8,'ABER')
+CREATE TABLE CAMION(\u000a    patente Varchar(7) PRIMARY KEY,\u000a    marca_modelo Varchar(50),\u000a    km_recorridos Integer,\u000a    costo_por_km Float,\u000a    costo_por_hora Float,\u000a    fecha_compra DATE\u000a)
+CREATE TABLE PLANTA(\u000a    nombre Varchar(50),\u000a    id integer PRIMARY KEY\u000a)
+CREATE TABLE RUTA(\u000a    planta_origen integer references PLANTA(id),\u000a    planta_destino integer references PLANTA(id),\u000a    distancia_km float,\u000a    duracion_hs float,\u000a    peso_max_kg float\u000a)
+DROP TABLE AUTOR
+DROP TABLE RUTA
+DROP TABLE PLANTA
+DROP TABLE CAMION
+CREATE TABLE CAMION(\u000a    patente Varchar(7) PRIMARY KEY,\u000a    marca_modelo Varchar(50),\u000a    km_recorridos Integer,\u000a    costo_por_km Float,\u000a    costo_por_hora Float,\u000a    fecha_compra DATE\u000a)
+\u000aCREATE TABLE PLANTA(\u000a    nombre Varchar(50),\u000a    id integer PRIMARY KEY\u000a)
+CREATE TABLE PLANTA_CAMION(\u000a    patente Varchar(7) references CAMION(patente),\u000a    id_planta integer references PLANTA(id)\u000a)
+CREATE TABLE RUTA(\u000a    id integer PRIMARY KEY,\u000a    planta_origen integer references PLANTA(id),\u000a    planta_destino integer references PLANTA(id),\u000a    distancia_km float,\u000a    duracion_hs float,\u000a    peso_max_kg float\u000a)
+CREATE TABLE INSUMO(\u000a    id integer,\u000a    descripcion varchar(100),\u000a    unidad_medida varchar(8),\u000a    costo float,\u000a    peso float,\u000a    densidad float\u000a)
+DROP TABLE RUTA
+DROP TABLE PLANTA_CAMION
+DROP TABLE PLANTA
+DROP TABLE INSUMO
+DROP TABLE CAMION
+CREATE TABLE CAMION(\u000a    patente Varchar(7) PRIMARY KEY,\u000a    marca_modelo Varchar(50),\u000a    km_recorridos Integer,\u000a    costo_por_km Float,\u000a    costo_por_hora Float,\u000a    fecha_compra DATE\u000a)
+CREATE TABLE PLANTA(\u000a    nombre Varchar(50),\u000a    id integer PRIMARY KEY\u000a)
+CREATE TABLE RUTA(\u000a    id integer PRIMARY KEY,\u000a    planta_origen integer references PLANTA(id),\u000a    planta_destino integer references PLANTA(id),\u000a    distancia_km float,\u000a    duracion_hs float,\u000a    peso_max_kg float\u000a)
+CREATE TABLE INSUMO(\u000a    id integer PRIMARY KEY,\u000a    descripcion varchar(100),\u000a    unidad_medida varchar(8),\u000a    costo float,\u000a    peso float,\u000a    densidad float\u000a)
+CREATE TABLE STOCK(\u000a    id integer PRIMARY KEY,\u000a    insumo integer references INSUMO(id),\u000a    planta integer references PLANTA(id),\u000a    cantidad integer,\u000a    punto_pedido integer\u000a)
+CREATE TABLE ORDEN_PEDIDO(\u000a    nro_orden integer PRIMARY KEY,\u000a    planta_destino integer references PLANTA(id),\u000a    fecha_solicitud DATE,\u000a    fecha_entrega DATE,\u000a    estado VARCHAR(10),\u000a    camion varchar(7) references CAMION(patente),\u000a    ruta integer references RUTA(id),\u000a    costo_envio float\u000a)
+DROP TABLE STOCK
+DROP TABLE ORDEN_PEDIDO
+DROP TABLE RUTA
+DROP TABLE PLANTA
+DROP TABLE CAMION
+DROP TABLE INSUMO
+CREATE TABLE CAMION(\u000a    patente Varchar(7) PRIMARY KEY,\u000a    marca_modelo Varchar(50),\u000a    km_recorridos Integer,\u000a    costo_por_km Float,\u000a    costo_por_hora Float,\u000a    fecha_compra DATE\u000a)
+CREATE TABLE PLANTA(\u000a    nombre Varchar(50),\u000a    id integer PRIMARY KEY\u000a)
+CREATE TABLE RUTA(\u000a    id integer PRIMARY KEY,\u000a    planta_origen integer references PLANTA(id),\u000a    planta_destino integer references PLANTA(id),\u000a    distancia_km float,\u000a    duracion_hs float,\u000a    peso_max_kg float\u000a)
+CREATE TABLE INSUMO(\u000a    id integer PRIMARY KEY,\u000a    descripcion varchar(100),\u000a    unidad_medida varchar(8),\u000a    costo float,\u000a    peso float,\u000a    densidad float\u000a)
+CREATE TABLE STOCK(\u000a    id integer PRIMARY KEY,\u000a    insumo integer references INSUMO(id),\u000a    planta integer references PLANTA(id),\u000a    cantidad integer,\u000a    punto_pedido integer\u000a)
+CREATE TABLE ORDEN_PEDIDO(\u000a    nro_orden integer PRIMARY KEY,\u000a    planta_destino integer references PLANTA(id),\u000a    fecha_solicitud DATE,\u000a    fecha_entrega DATE,\u000a    estado VARCHAR(10),\u000a    camion varchar(7) references CAMION(patente),\u000a    ruta integer references RUTA(id),\u000a    costo_envio float\u000a)
+CREATE TABLE ORDEN_PEDIDO_ITEMS(\u000a    nro_orden integer references ORDEN_PEDIDO(nro_orden),\u000a    insumo integer references INSUMO(id),\u000a    cantidad integer\u000a)\u000a
+CREATE TABLE PLANTA_CAMION(\u000a    patente Varchar(7) references CAMION(patente),\u000a    id_planta integer references PLANTA(id)\u000a)
+INSERT INTO PLANTA VALUES('AVDA',1)
 COMMIT
+INSERT INTO PLANTA VALUES('STAFE',2)
+COMMIT
+INSERT INTO PLANTA VALUES('ROSARIO',3)
+COMMIT
+/*C14*/SET SCHEMA PUBLIC
 DISCONNECT
-/*C3*/DISCONNECT
+/*C15*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C16*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C17*/SET SCHEMA PUBLIC
+DISCONNECT
