@@ -1,7 +1,7 @@
 package database;
 import java.io.*;
 
-class ReadConfig {
+public class ReadConfig {
 	public static String[] RFD() {
       File archivo = null;
       FileReader fr = null;

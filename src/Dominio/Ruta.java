@@ -1,4 +1,4 @@
-package dominio;
+package Dominio;
 
 public class Ruta {
 	private Planta planta_origen;

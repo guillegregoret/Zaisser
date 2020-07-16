@@ -33,7 +33,7 @@ public class ConnectDatabase {
 			e.printStackTrace();
 		}
 	}
-	public void queryUpdate(String query) {
+	public void query(String query) {
 		Connection con = null;
 		Statement stmt = null;
   
@@ -43,7 +43,8 @@ public class ConnectDatabase {
 			con = DriverManager.getConnection(conn[0],conn[1],conn[2]);
 			stmt = con.createStatement();
 			WriteConfig.QueryToLog(query);
-			stmt.executeUpdate(query);		
+			stmt.executeUpdate(query);	
+			stmt.close();
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}   

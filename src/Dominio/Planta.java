@@ -1,4 +1,4 @@
-package dominio;
+package Dominio;
 
 public class Planta {
 	private String nombre;

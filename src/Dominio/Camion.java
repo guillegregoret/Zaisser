@@ -1,4 +1,4 @@
-package dominio;
+package Dominio;
 
 import java.util.Date;
 
@@ -44,6 +44,9 @@ public class Camion {
 	}
 	public void setFecha_compra(Date fecha_compra) {
 		this.fecha_compra = fecha_compra;
+	}
+	public void alta_camion(String patente,String marca_modelo,Integer km_recorridos,Double costo_por_km,Double costo_por_hora,Date fecha_compra) {
+		
 	}
 	
 }

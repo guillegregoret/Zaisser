@@ -1,4 +1,4 @@
-package dominio;
+package Dominio;
 
 public class Insumo_general extends Insumo {
 	private Double peso;

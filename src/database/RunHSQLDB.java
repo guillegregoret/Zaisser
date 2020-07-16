@@ -13,6 +13,5 @@ public class RunHSQLDB {
         hsqlServer.setDatabaseName(0, "arkana");
         hsqlServer.setDatabasePath(0, "file:arkana");
         hsqlServer.start();
-        
 	}
 }

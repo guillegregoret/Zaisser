@@ -1,0 +1,4 @@
+Attempt to query on: 15-07-2020 02:08:39 query: SELECT * FROM PLANTA
+Attempt to query on: 15-07-2020 02:12:26 query: SELECT * FROM PLANTA
+Attempt to query on: 15-07-2020 18:35:19 query: 
+Attempt to query on: 15-07-2020 18:36:51 query: 

@@ -2,45 +2,28 @@ package temp;
 
 import java.io.PrintWriter;
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
-
+import Dominio.Camion;
+import Gestores.Gestor_Camion;
 import database.*;
 
 public class App {
 public static void main(String[] args) {
-	//PrintWriter pw = new PrintWriter(System.out);
-	//RunHSQLDB Database = new RunHSQLDB();
-	//Database.HSQLDBRunner(pw);
 	
-	
-	try {
-		Class.forName("org.hsqldb.jdbc.JDBCDriver");
-		Connection conn= DriverManager.getConnection("jdbc:hsqldb:hsql://127.0.0.1/Zaisser","SA","");
-		Statement stmt = conn.createStatement();
-		//stmt.execute("CREATE TABLE AUTOR ( ID INT, NOMBRE VARCHAR(45) )");
-		//stmt.execute("INSERT INTO PUBLIC.AUTOR VALUES('8' , 'ABER')");
+	Camion c = new Camion();
+	//c.setPatente("AR510S");
+	//c.setCosto_por_hora(123.1);
+	//c.setCosto_por_km(54.2);
+	//Date fecha = new Date(115,6,8);
+	//c.setFecha_compra(fecha);
+	//c.setKm_recorridos(54654);
+	//c.setMarca_modelo("SCANIACAMIONERO");
+	c.setKm_recorridos(15000);
+	Gestor_Camion gc = new Gestor_Camion();
 
-		PreparedStatement stmt2 = conn.prepareStatement("SELECT * FROM PLANTA  WHERE ID BETWEEN ? AND ?");
-		stmt2.setInt(1, 0);
-		stmt2.setInt(2, 700);
-		ResultSet rs = stmt2.executeQuery();
-    	while(rs.next()) {
-			String nombre = rs.getString("NOMBRE");
-		Integer id = rs.getInt("ID");
-			System.out.println("[planta] "+nombre+", [id] "+id);
-		}
-		rs.close();
-		stmt.close();
-		conn.close();
-		//conn.setAutoCommit(false);
-		// insert1 
-		// injsert 2
-		//if(false) conn.rollback();
-		//else conn.commit();
-	} catch (ClassNotFoundException e) {
-		e.printStackTrace();
-	} catch (SQLException e) {
-		e.printStackTrace();
-	}
+	ArrayList<Camion> camionsitos = Gestor_Camion.getCamiones(c);
+	System.out.println(camionsitos.size());
 }
 }
