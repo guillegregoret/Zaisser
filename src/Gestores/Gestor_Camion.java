@@ -13,7 +13,7 @@ import Dominio.Camion;
 import database.*;
 
 public class Gestor_Camion {
-	public void alta_camion(Camion c) {
+	public static void alta_camion(Camion c) {
 		ConnectDatabase condb = new ConnectDatabase();
 		String query = "INSERT INTO CAMION VALUES(?, ?, ?, ?, ?, ?);";
 		PreparedStatement stmt = condb.preparedStatement(query);
@@ -54,7 +54,7 @@ public class Gestor_Camion {
 		}
 		
 	}
-	public void eliminar_camion(Camion c) {
+	public static void eliminar_camion(Camion c) {
 		ConnectDatabase condb = new ConnectDatabase();
 		PreparedStatement stmt = condb.preparedStatement("DELETE FROM CAMION WHERE PATENTE LIKE ?;");
 		try {

@@ -1,6 +1,6 @@
 package Dominio;
 
-public class Insumo_liquido {
+public class Insumo_liquido extends Insumo {
 	private Double densidad;
 
 	public Double getDensidad() {

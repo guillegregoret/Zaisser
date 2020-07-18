@@ -1,6 +1,13 @@
 package Dominio;
 
 public class Insumo {
+	private int id;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	private String descripcion;
 	private String unidad_medida;
 	private Double costo;
