@@ -33,19 +33,35 @@ public class Gestor_Camion {
 		}
 		
 	}
-	public void modificar_camion(Camion c) {
+	public static void modificar_camion(Camion c) {
 		ConnectDatabase condb = new ConnectDatabase();
-		String query = "UPDATE CAMION SET MARCA_MODELO = ?, KM_RECORRIDOS = ?,COSTO_POR_KM = ?, COSTO_POR_HORA = ?, FECHA_COMPRA = ? WHERE PATENTE LIKE ?;";
+		String query = "UPDATE CAMION SET MARCA_MODELO = ?,KM_RECORRIDOS = ?, COSTO_POR_KM = ?, COSTO_POR_HORA = ?, FECHA_COMPRA = ? WHERE PATENTE = ?;";
+
 		PreparedStatement stmt = condb.preparedStatement(query);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		try {
-			
-			stmt.setString(1, c.getMarca_modelo());
-			stmt.setInt(2,c.getKm_recorridos());
-			stmt.setDouble(3, c.getCosto_por_km());
-			stmt.setDouble(4,c.getCosto_por_hora());
-			stmt.setString(5, sdf.format(c.getFecha_compra()));
-			stmt.setString(6,c.getPatente());
+			int i=1;
+			if(!c.getMarca_modelo().isEmpty()) {
+				stmt.setString(i, c.getMarca_modelo());
+				i++;
+			}
+			if(c.getKm_recorridos() != null) {
+				stmt.setInt(i,c.getKm_recorridos());
+				i++;
+			}
+			if(c.getCosto_por_km() != null) {
+				stmt.setDouble(i, c.getCosto_por_km());
+				i++;
+			}
+			if(c.getCosto_por_hora() != null) {
+				stmt.setDouble(i,c.getCosto_por_hora());
+				i++;
+			}
+			if(c.getFecha_compra() != null) {
+				stmt.setString(i, sdf.format(c.getFecha_compra()));
+				i++;
+			}
+			stmt.setString(i,c.getPatente());
 			stmt.execute();
 			stmt.close();
 		}

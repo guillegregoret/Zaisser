@@ -15,17 +15,25 @@ import javax.swing.text.MaskFormatter;
 import com.sun.xml.internal.ws.util.StringUtils;
 
 import Dominio.Camion;
+import Dominio.Grafo;
+import Dominio.Planta;
+import Dominio.Ruta;
 import Gestores.Gestor_Camion;
+import Gestores.Gestor_Planta;
+import Gestores.Gestor_Ruta;
+import database.RunHSQLDB;
 
 import java.awt.CardLayout;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,9 +46,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
+import javax.swing.JComboBox;
+import java.awt.Canvas;
+import java.awt.Toolkit;
+import java.awt.Button;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import java.awt.Color;
 
 public class Zaisser extends JFrame {
 	private final static String MENUCAMION="name_5541826395100";
+	private final static String MENUPLANTA="name_5544200076900";
 	private JPanel contentPane;
 	private JFormattedTextField patente_crear;
 	private JTextField km_recorridos_crear;
@@ -53,6 +69,12 @@ public class Zaisser extends JFrame {
 	private JTextField costo_por_hora_mod;
 	private JTextField marca_modelo_mod;
 	private JTextField km_recorridos_mod;
+	private RunHSQLDB Database;
+	private JTextField gen_ruta_distancia;
+	private JTextField gen_ruta_duracion;
+	private JTextField gen_ruta_pesomax;
+	private JTextField nombre_nueva_planta;
+	private Grafo grafo;
 
 	public static void main(String[] args) {
 		try{
@@ -75,27 +97,48 @@ public class Zaisser extends JFrame {
 	}
 
 	public Zaisser() {
+		
+		
+		setIconImage(Toolkit.getDefaultToolkit().getImage("D:\\DIED\\Zaisser\\Zaisser.ico"));
+		setTitle("Zaisser - Log\u00EDstica de Transporte");
+		setResizable(false);
+		
+		PrintWriter pw = new PrintWriter(System.out);
+		Database = new RunHSQLDB();
+		Database.HSQLDBRunner(pw);
 				
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 544, 386);
+		setBounds(100, 100, 603, 386);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new CardLayout(0, 0));
 		
+		JButton seleccionar_camion_btn = new JButton("Seleccionar");
+		JButton modificar_camion_btn = new JButton("Modificar");
+		JButton eliminar_camion_btn = new JButton("Eliminar");
 		JPanel menu_principal = new JPanel();
 		contentPane.add(menu_principal, "name_5500757628000");
 		menu_principal.setLayout(null);
 		
-		JButton btnNewButton = new JButton("Men\u00FA Cami\u00F3n");
+		JButton btnNewButton = new JButton("Administrar Camiones");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				((CardLayout)getContentPane().getLayout()).show(getContentPane(), "MENUCAMION");
 				//menu_principal.hide();
 			}
 		});
-		btnNewButton.setBounds(10, 25, 126, 23);
+		btnNewButton.setBounds(10, 25, 142, 23);
 		menu_principal.add(btnNewButton);
+		
+		JButton btnNewButton_4 = new JButton("Administrar Plantas");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPLANTA);
+			}
+		});
+		btnNewButton_4.setBounds(10, 63, 142, 23);
+		menu_principal.add(btnNewButton_4);
 		
 		JPanel menu_camion = new JPanel();
 		contentPane.add(menu_camion, "MENUCAMION");
@@ -129,7 +172,9 @@ public class Zaisser extends JFrame {
 		JButton btnNewButton_3 = new JButton("Buscar");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				modificar_camion_btn.setEnabled(false);
+				eliminar_camion_btn.setEnabled(false);
+				seleccionar_camion_btn.setEnabled(false);
 				Camion buscar_camion = new Camion();
 				if(!patente_mod.getText().isEmpty())buscar_camion.setPatente(patente_mod.getText());
 				if(!costo_por_hora_mod.getText().isEmpty())buscar_camion.setCosto_por_hora(Double.valueOf(costo_por_hora_mod.getText()));
@@ -166,10 +211,10 @@ public class Zaisser extends JFrame {
 				}
 			}
 		});
-		btnNewButton_3.setBounds(410, 264, 89, 23);
+		btnNewButton_3.setBounds(468, 104, 89, 23);
 		modificar_eliminar_camion.add(btnNewButton_3);
 		
-		JButton eliminar_camion_btn = new JButton("Eliminar");
+		
 		eliminar_camion_btn.setEnabled(false);
 		eliminar_camion_btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -181,11 +226,95 @@ public class Zaisser extends JFrame {
 				}
 			}
 		});
-		eliminar_camion_btn.setBounds(311, 264, 89, 23);
+		eliminar_camion_btn.setBounds(371, 264, 89, 23);
 		modificar_eliminar_camion.add(eliminar_camion_btn);
 		
+		
+		modificar_camion_btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+					Camion nuevo_camion = new Camion();
+					if(!patente_mod.getText().isEmpty())nuevo_camion.setPatente(patente_mod.getText());
+					if(!costo_por_hora_mod.getText().isEmpty())nuevo_camion.setCosto_por_hora(Double.valueOf(costo_por_hora_mod.getText()));
+					if(!costo_por_km_mod.getText().isEmpty())nuevo_camion.setCosto_por_km(Double.valueOf(costo_por_km_mod.getText()));
+					if(!km_recorridos_mod.getText().isEmpty())nuevo_camion.setKm_recorridos(Integer.valueOf(km_recorridos_mod.getText()));
+					if(!marca_modelo_mod.getText().isEmpty())nuevo_camion.setMarca_modelo(marca_modelo_mod.getText());
+					if(!fecha_compra_mod.getText().isEmpty()) {
+	
+					try {
+						SimpleDateFormat out = new SimpleDateFormat("yyyy-MM-dd");
+						SimpleDateFormat in = new SimpleDateFormat("dd/MM/yyyy");
+						Date date = in.parse(fecha_compra_mod.getText());
+						nuevo_camion.setFecha_compra(out.parse(out.format(date)));
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}}
+
+					
+					System.out.println(nuevo_camion.getMarca_modelo());
+					System.out.println(nuevo_camion.getPatente());
+					System.out.println(nuevo_camion.getCosto_por_hora());
+					System.out.println(nuevo_camion.getCosto_por_km());
+					System.out.println(nuevo_camion.getFecha_compra());
+					System.out.println(nuevo_camion.getKm_recorridos());
+					Gestor_Camion.modificar_camion(nuevo_camion);
+					
+					patente_mod.setText("");
+					costo_por_hora_mod.setText("");
+					costo_por_km_mod.setText("");
+					marca_modelo_mod.setText("");
+					km_recorridos_mod.setText("");
+					fecha_compra_mod.setText("");
+
+					
+					((DefaultTableModel)table_buscar_camion.getModel()).setRowCount(0);
+				
+			}
+		});
+		modificar_camion_btn.setEnabled(false);
+		modificar_camion_btn.setBounds(371, 104, 89, 23);
+		modificar_eliminar_camion.add(modificar_camion_btn);
+		
+		
+		seleccionar_camion_btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+
+				
+				if(table_buscar_camion.getSelectedRow()>=0) {
+				
+				patente_mod.setEnabled(false);
+				patente_mod.setText((String) table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 0));
+				costo_por_hora_mod.setText(String.valueOf(table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 1)));
+				costo_por_km_mod.setText(String.valueOf(table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 2)));
+				marca_modelo_mod.setText((String) table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 3));
+				km_recorridos_mod.setText(String.valueOf(table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 4)));
+				//fecha_compra_mod.setText(String.valueOf(table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 5)));
+				
+				try {
+					SimpleDateFormat in = new SimpleDateFormat("yyyy-MM-dd");
+					Date date = in.parse(String.valueOf(table_buscar_camion.getModel().getValueAt(table_buscar_camion.getSelectedRow(), 5)));	
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					System.out.println(" -> "+sdf.format(date));
+					
+
+					fecha_compra_mod.setText(sdf.format(date));
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				modificar_camion_btn.setEnabled(true);
+				//Gestor_Camion.eliminar_camion(camion);
+				((DefaultTableModel)table_buscar_camion.getModel()).setRowCount(0);
+				}
+				eliminar_camion_btn.setEnabled(false);
+			}
+		});
+		seleccionar_camion_btn.setEnabled(false);
+		seleccionar_camion_btn.setBounds(468, 264, 89, 23);
+		modificar_eliminar_camion.add(seleccionar_camion_btn);
+		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 137, 489, 123);
+		scrollPane.setBounds(10, 137, 549, 123);
 		modificar_eliminar_camion.add(scrollPane);
 		
 			table_buscar_camion = new JTable();
@@ -204,6 +333,7 @@ public class Zaisser extends JFrame {
 			table_buscar_camion.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 		        public void valueChanged(ListSelectionEvent event) {
 		            eliminar_camion_btn.setEnabled(true);
+		            seleccionar_camion_btn.setEnabled(true);
 		        }
 		    });
 			
@@ -252,6 +382,7 @@ public class Zaisser extends JFrame {
 			lblNewLabel_3.setBounds(10, 17, 58, 14);
 			modificar_eliminar_camion.add(lblNewLabel_3);
 			
+		
 		JPanel crear_camion = new JPanel();
 		tabbedPane.addTab("Crear", null, crear_camion, null);
 		crear_camion.setLayout(null);
@@ -353,7 +484,119 @@ public class Zaisser extends JFrame {
 		costo_por_hora_crear.setBounds(398, 25, 89, 20);
 		crear_camion.add(costo_por_hora_crear);
 		
-		JPanel panel_2 = new JPanel();
-		contentPane.add(panel_2, "name_5544200076900");
+		JPanel menu_planta_ruta = new JPanel();
+		contentPane.add(menu_planta_ruta, MENUPLANTA);
+		menu_planta_ruta.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Generar Plantas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel.setBounds(10, 11, 567, 77);
+		menu_planta_ruta.add(panel);
+		panel.setLayout(null);
+		
+		nombre_nueva_planta = new JTextField();
+		nombre_nueva_planta.setBounds(25, 33, 152, 20);
+		panel.add(nombre_nueva_planta);
+		nombre_nueva_planta.setColumns(10);
+		
+		JButton btnNewButton_5 = new JButton("Guardar Planta");
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Planta p = new Planta();
+				p.setNombre(nombre_nueva_planta.getText());
+				Gestor_Planta.altaPlanta(p);
+			}
+		});
+		btnNewButton_5.setBounds(187, 32, 142, 23);
+		panel.add(btnNewButton_5);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Generar Rutas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBounds(10, 99, 567, 165);
+		menu_planta_ruta.add(panel_1);
+		panel_1.setLayout(null);
+		
+		
+		JComboBox<String> plantaorigen = new JComboBox<String>();
+		plantaorigen.setBounds(10, 39, 149, 20);
+		panel_1.add(plantaorigen);
+		
+		JComboBox<String> plantadestino = new JComboBox<String>();
+		plantadestino.setBounds(408, 39, 149, 20);
+		panel_1.add(plantadestino);
+		//plantaorigen.setModel(new DefaultComboBoxModel<>());
+		ArrayList<Planta> plantas = Gestor_Planta.getPlantas();
+		for(int i = 0 ; i < plantas.size() ; i++) {
+			plantaorigen.addItem(plantas.get(i).getNombre());
+		}
+		//plantaorigen.setModel(new DefaultComboBoxModel<>());
+		for(int i = 0 ; i < plantas.size() ; i++) {
+			plantadestino.addItem(plantas.get(i).getNombre());
+		}
+		
+	
+		gen_ruta_distancia = new JTextField();
+		gen_ruta_distancia.setBounds(282, 39, 86, 20);
+		panel_1.add(gen_ruta_distancia);
+		gen_ruta_distancia.setColumns(10);
+		
+		gen_ruta_duracion = new JTextField();
+		gen_ruta_duracion.setBounds(282, 70, 86, 20);
+		panel_1.add(gen_ruta_duracion);
+		gen_ruta_duracion.setColumns(10);
+		
+		gen_ruta_pesomax = new JTextField();
+		gen_ruta_pesomax.setBounds(282, 101, 86, 20);
+		panel_1.add(gen_ruta_pesomax);
+		gen_ruta_pesomax.setColumns(10);
+		
+		JLabel lblNewLabel_5 = new JLabel("Duraci\u00F3n [Hs]");
+		lblNewLabel_5.setBounds(186, 73, 86, 14);
+		panel_1.add(lblNewLabel_5);
+		lblNewLabel_5.setEnabled(false);
+		
+		JLabel lblNewLabel_6 = new JLabel("Peso Max [Kg]");
+		lblNewLabel_6.setBounds(186, 104, 86, 14);
+		panel_1.add(lblNewLabel_6);
+		lblNewLabel_6.setEnabled(false);
+		
+		JLabel lblNewLabel_4 = new JLabel("Distancia [Km]");
+		lblNewLabel_4.setBounds(186, 42, 86, 14);
+		panel_1.add(lblNewLabel_4);
+		lblNewLabel_4.setEnabled(false);
+		
+				
+
+				
+				JLabel lblNewLabel_7 = new JLabel("Planta Origen");
+				lblNewLabel_7.setHorizontalAlignment(SwingConstants.CENTER);
+				lblNewLabel_7.setBounds(10, 21, 149, 14);
+				panel_1.add(lblNewLabel_7);
+				
+				JLabel lblNewLabel_7_1 = new JLabel("Planta Destino");
+				lblNewLabel_7_1.setHorizontalAlignment(SwingConstants.CENTER);
+				lblNewLabel_7_1.setBounds(408, 21, 149, 14);
+				panel_1.add(lblNewLabel_7_1);
+				
+				JButton btnNewButton_6 = new JButton("Guardar Ruta");
+				btnNewButton_6.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Ruta r = new Ruta();
+						r.setDistancia_km(Integer.valueOf(gen_ruta_distancia.getText()));
+						r.setDuracion_horas(Double.valueOf(gen_ruta_duracion.getText()));
+						r.setPeso_max_kg(Double.valueOf(gen_ruta_pesomax.getText()));
+						Planta plantao = new Planta();
+						Planta plantad = new Planta();
+						plantao.setId(Gestor_Planta.getID((String) plantaorigen.getSelectedItem()));
+						plantad.setId(Gestor_Planta.getID((String) plantadestino.getSelectedItem()));
+						r.setPlanta_origen(plantao);
+						r.setPlanta_destino(plantad);
+						Gestor_Ruta.alta_ruta(r);
+					
+					}
+				});
+				btnNewButton_6.setBounds(229, 132, 112, 23);
+				panel_1.add(btnNewButton_6);
+
 	}
 }

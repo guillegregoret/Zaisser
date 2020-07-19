@@ -10,8 +10,8 @@ public class RunHSQLDB {
         hsqlServer.setLogWriter(pw);
         hsqlServer.setTrace(false);
         hsqlServer.setSilent(true);
-        hsqlServer.setDatabaseName(0, "arkana");
-        hsqlServer.setDatabasePath(0, "file:arkana");
+        hsqlServer.setDatabaseName(0, "Zaisser");
+        hsqlServer.setDatabasePath(0, "file:zaisser");
         hsqlServer.start();
 	}
 }

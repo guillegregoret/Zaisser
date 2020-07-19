@@ -2,6 +2,7 @@
 
 import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import Dominio.*;
 import database.ConnectDatabase;
@@ -76,5 +77,12 @@ public class Gestor_Insumo {
 			e.printStackTrace();
 		}
 		
+	}
+	public static ArrayList<Insumo> getInsumo(Insumo i) {
+		ArrayList<Insumo> insumos = new ArrayList<Insumo>();
+		
+		
+	
+		return insumos;
 	}
 }
