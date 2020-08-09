@@ -16,9 +16,13 @@ import com.sun.xml.internal.ws.util.StringUtils;
 
 import Dominio.Camion;
 import Dominio.Grafo;
+import Dominio.Insumo;
+import Dominio.Insumo_general;
+import Dominio.Insumo_liquido;
 import Dominio.Planta;
 import Dominio.Ruta;
 import Gestores.Gestor_Camion;
+import Gestores.Gestor_Insumo;
 import Gestores.Gestor_Planta;
 import Gestores.Gestor_Ruta;
 import database.RunHSQLDB;
@@ -53,10 +57,19 @@ import java.awt.Button;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.Color;
+import javax.swing.JRadioButton;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Zaisser extends JFrame {
 	private final static String MENUCAMION="name_5541826395100";
 	private final static String MENUPLANTA="name_5544200076900";
+	private final static String MENUINSUMO="name_165698070879700";
+	private final static String MENUPRINCIPAL="name_5500757628000";
+	
+	
 	private JPanel contentPane;
 	private JFormattedTextField patente_crear;
 	private JTextField km_recorridos_crear;
@@ -75,6 +88,19 @@ public class Zaisser extends JFrame {
 	private JTextField gen_ruta_pesomax;
 	private JTextField nombre_nueva_planta;
 	private Grafo grafo;
+	private JTextField descripcion_mod;
+	private JTextField um_mod;
+	private JTextField costo_mod;
+	private JTextField peso_mod;
+	private JTextField densidad_mod;
+	private JTextField id_mod;
+	private JTable table_buscar_insumo;
+	private JTextField costo_crear;
+	private JTextField descripcion_crear;
+	private JTextField um_crear;
+	private JTextField id_crear;
+	private JTextField densidad_crear;
+	private JTextField peso_crear;
 
 	public static void main(String[] args) {
 		try{
@@ -118,7 +144,7 @@ public class Zaisser extends JFrame {
 		JButton modificar_camion_btn = new JButton("Modificar");
 		JButton eliminar_camion_btn = new JButton("Eliminar");
 		JPanel menu_principal = new JPanel();
-		contentPane.add(menu_principal, "name_5500757628000");
+		contentPane.add(menu_principal, MENUPRINCIPAL);
 		menu_principal.setLayout(null);
 		
 		JButton btnNewButton = new JButton("Administrar Camiones");
@@ -128,7 +154,7 @@ public class Zaisser extends JFrame {
 				//menu_principal.hide();
 			}
 		});
-		btnNewButton.setBounds(10, 25, 142, 23);
+		btnNewButton.setBounds(10, 25, 142, 46);
 		menu_principal.add(btnNewButton);
 		
 		JButton btnNewButton_4 = new JButton("Administrar Plantas");
@@ -137,8 +163,17 @@ public class Zaisser extends JFrame {
 				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPLANTA);
 			}
 		});
-		btnNewButton_4.setBounds(10, 63, 142, 23);
+		btnNewButton_4.setBounds(162, 25, 142, 46);
 		menu_principal.add(btnNewButton_4);
+		
+		JButton btnNewButton_7 = new JButton("Administrar Insumos");
+		btnNewButton_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUINSUMO);
+			}
+		});
+		btnNewButton_7.setBounds(314, 25, 142, 46);
+		menu_principal.add(btnNewButton_7);
 		
 		JPanel menu_camion = new JPanel();
 		contentPane.add(menu_camion, "MENUCAMION");
@@ -152,17 +187,286 @@ public class Zaisser extends JFrame {
 		tabbedPane.setBounds(0, 0, 633, 326);
 		menu_camion.add(tabbedPane);
 		
-		JPanel buscar_camion = new JPanel();
-		tabbedPane.addTab("Buscar", null, buscar_camion, null);
-		buscar_camion.setLayout(null);
-		
-		JButton btnNewButton_2 = new JButton("New button");
-		btnNewButton_2.setBounds(370, 194, 89, 23);
-		buscar_camion.add(btnNewButton_2);
-		
 		JPanel modificar_eliminar_camion = new JPanel();
 		tabbedPane.addTab("Modificar/Eliminar", null, modificar_eliminar_camion, null);
 		modificar_eliminar_camion.setLayout(null);
+		
+		JPanel menu_insumo = new JPanel();
+		contentPane.add(menu_insumo, MENUINSUMO);
+		menu_insumo.setLayout(null);
+		
+		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane_1.setBounds(0, 0, 587, 347);
+		menu_insumo.add(tabbedPane_1);
+		
+		JPanel modificar_eliminar = new JPanel();
+		tabbedPane_1.addTab("Modificar/Eliminar", null, modificar_eliminar, null);
+		modificar_eliminar.setLayout(null);
+		
+		descripcion_mod = new JTextField();
+		descripcion_mod.setBounds(102, 21, 120, 20);
+		modificar_eliminar.add(descripcion_mod);
+		descripcion_mod.setColumns(10);
+		
+		JLabel lblNewLabel_8 = new JLabel("Descripci\u00F3n");
+		lblNewLabel_8.setBounds(10, 24, 54, 14);
+		modificar_eliminar.add(lblNewLabel_8);
+		
+		um_mod = new JTextField();
+		um_mod.setBounds(102, 52, 86, 20);
+		um_mod.setColumns(10);
+		modificar_eliminar.add(um_mod);
+		
+		costo_mod = new JTextField();
+		costo_mod.setBounds(102, 83, 86, 20);
+		costo_mod.setColumns(10);
+		modificar_eliminar.add(costo_mod);
+		
+		peso_mod = new JTextField();
+		peso_mod.setBounds(348, 21, 86, 20);
+		peso_mod.setColumns(10);
+		modificar_eliminar.add(peso_mod);
+		
+		densidad_mod = new JTextField();
+		densidad_mod.setBounds(348, 52, 86, 20);
+		densidad_mod.setColumns(10);
+		modificar_eliminar.add(densidad_mod);
+		
+		JLabel lblNewLabel_9 = new JLabel("Unidad de medida");
+		lblNewLabel_9.setBounds(10, 55, 100, 14);
+		modificar_eliminar.add(lblNewLabel_9);
+		
+		JLabel lblNewLabel_10 = new JLabel("Costo");
+		lblNewLabel_10.setBounds(10, 86, 46, 14);
+		modificar_eliminar.add(lblNewLabel_10);
+		
+		JLabel lblNewLabel_11 = new JLabel("Peso");
+		lblNewLabel_11.setBounds(256, 24, 46, 14);
+		modificar_eliminar.add(lblNewLabel_11);
+		
+		JLabel lblNewLabel_12 = new JLabel("Densidad");
+		lblNewLabel_12.setBounds(256, 55, 54, 14);
+		modificar_eliminar.add(lblNewLabel_12);
+		
+		id_mod = new JTextField();
+		id_mod.setBounds(348, 83, 86, 20);
+		modificar_eliminar.add(id_mod);
+		id_mod.setColumns(10);
+		
+		JLabel lblNewLabel_13 = new JLabel("Identificador");
+		lblNewLabel_13.setBounds(256, 86, 82, 14);
+		modificar_eliminar.add(lblNewLabel_13);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 114, 562, 163);
+		modificar_eliminar.add(scrollPane_1);
+		
+		table_buscar_insumo = new JTable();
+		table_buscar_insumo.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"ID", "Descripción", "Costo", "Unidad de medida", "Peso (IG)", "Densidad (IL)"
+			}
+		));
+		scrollPane_1.setViewportView(table_buscar_insumo);
+		
+		JButton btnNewButton_8 = new JButton("Buscar");
+		btnNewButton_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				Insumo buscar_insumo = new Insumo();
+				if(!costo_mod.getText().isEmpty()) buscar_insumo.setCosto(Double.valueOf(costo_mod.getText()));
+				if(!descripcion_mod.getText().isEmpty()) buscar_insumo.setDescripcion(descripcion_mod.getText());
+				if(!id_mod.getText().isEmpty()) buscar_insumo.setId(Integer.valueOf(id_mod.getText()));
+				if(!um_mod.getText().isEmpty()) buscar_insumo.setUnidad_medida(um_mod.getText());
+
+				ArrayList<Insumo> Auxinsumo = Gestor_Insumo.getInsumo(buscar_insumo);
+				if(Auxinsumo.isEmpty())	JOptionPane.showMessageDialog(null, "No se encontraron insumos", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+				else {	
+					((DefaultTableModel)table_buscar_insumo.getModel()).setRowCount(0);
+				for (Insumo i : Auxinsumo) {
+						Object[] auxRow = new Object[6];
+						auxRow[0] = i.getId();
+						auxRow[1] = i.getDescripcion();
+						auxRow[2] = i.getCosto();
+						auxRow[3] = i.getUnidad_medida();
+						if(i instanceof Insumo_general) {
+							auxRow[4]=((Insumo_general) i).getPeso();
+						}
+						if(i instanceof Insumo_liquido) {
+							auxRow[5]=((Insumo_liquido) i).getDensidad();
+						}
+						((DefaultTableModel)table_buscar_insumo.getModel()).addRow(auxRow);
+					}
+				}
+			}
+		});
+		btnNewButton_8.setBounds(483, 51, 89, 23);
+		modificar_eliminar.add(btnNewButton_8);
+		
+		JButton btnNewButton_9 = new JButton("Eliminar");
+		btnNewButton_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Insumo insumo = new Insumo();
+				if(table_buscar_insumo.getSelectedRow()>=0) {
+				insumo.setId((Integer) table_buscar_insumo.getModel().getValueAt(table_buscar_insumo.getSelectedRow(), 0));
+				Gestor_Insumo.eliminar_insumo(insumo);
+				((DefaultTableModel)table_buscar_insumo.getModel()).setRowCount(0);
+				}
+			}
+		});
+		btnNewButton_9.setBounds(483, 288, 89, 23);
+		modificar_eliminar.add(btnNewButton_9);
+		
+		JButton btnNewButton_11 = new JButton("Atr\u00E1s");
+		btnNewButton_11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPRINCIPAL);
+			}
+		});
+		btnNewButton_11.setBounds(10, 288, 89, 23);
+		modificar_eliminar.add(btnNewButton_11);
+		
+		JButton btnNewButton_14 = new JButton("Modificar");
+		btnNewButton_14.setBounds(483, 82, 89, 23);
+		modificar_eliminar.add(btnNewButton_14);
+		
+		JButton btnNewButton_15 = new JButton("Seleccionar");
+		btnNewButton_15.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Insumo insumo = new Insumo();
+				if(table_buscar_insumo.getSelectedRow()>=0) {
+				insumo.setId((Integer) table_buscar_insumo.getModel().getValueAt(table_buscar_insumo.getSelectedRow(), 0));
+				Insumo aux = Gestor_Insumo.getInsumo(insumo).get(1);
+				um_mod.setText(aux.getUnidad_medida());
+				id_mod.setText(String.valueOf(aux.getId()));
+				descripcion_mod.setText(aux.getDescripcion());
+				costo_mod.setText(aux.getCosto().toString());
+				if(aux instanceof Insumo_liquido) densidad_mod.setText(((Insumo_liquido) aux).getDensidad().toString());
+				if(aux instanceof Insumo_general) peso_mod.setText(((Insumo_general) aux).getPeso().toString());
+				//peso_mod.setText(t);
+				}
+			}
+		});
+		btnNewButton_15.setBounds(384, 288, 89, 23);
+		modificar_eliminar.add(btnNewButton_15);
+		
+		JPanel crear = new JPanel();
+		tabbedPane_1.addTab("Crear", null, crear, null);
+		crear.setLayout(null);
+		
+		costo_crear = new JTextField();
+		costo_crear.setColumns(10);
+		costo_crear.setBounds(102, 84, 86, 20);
+		crear.add(costo_crear);
+		
+		JLabel lblNewLabel_10_1 = new JLabel("Costo");
+		lblNewLabel_10_1.setBounds(10, 87, 46, 14);
+		crear.add(lblNewLabel_10_1);
+		
+		JLabel lblNewLabel_9_1 = new JLabel("Unidad de medida");
+		lblNewLabel_9_1.setBounds(10, 56, 100, 14);
+		crear.add(lblNewLabel_9_1);
+		
+		JLabel lblNewLabel_8_1 = new JLabel("Descripci\u00F3n");
+		lblNewLabel_8_1.setBounds(10, 25, 54, 14);
+		crear.add(lblNewLabel_8_1);
+		
+		descripcion_crear = new JTextField();
+		descripcion_crear.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				id_crear.setText(Gestor_Insumo.next_id().toString());
+			}
+		});
+		descripcion_crear.setColumns(10);
+		descripcion_crear.setBounds(102, 22, 120, 20);
+		crear.add(descripcion_crear);
+		
+		um_crear = new JTextField();
+		um_crear.setColumns(10);
+		um_crear.setBounds(102, 53, 86, 20);
+		crear.add(um_crear);
+		
+		JLabel lblNewLabel_11_1 = new JLabel("Peso");
+		lblNewLabel_11_1.setBounds(256, 25, 46, 14);
+		crear.add(lblNewLabel_11_1);
+		
+		JLabel lblNewLabel_12_1 = new JLabel("Densidad");
+		lblNewLabel_12_1.setBounds(256, 56, 54, 14);
+		crear.add(lblNewLabel_12_1);
+		
+		JLabel lblNewLabel_13_1 = new JLabel("Identificador");
+		lblNewLabel_13_1.setBounds(256, 87, 82, 14);
+		crear.add(lblNewLabel_13_1);
+		
+		id_crear = new JTextField();
+		id_crear.setEnabled(false);
+		id_crear.setEditable(false);
+		id_crear.setColumns(10);
+		id_crear.setBounds(348, 84, 86, 20);
+		crear.add(id_crear);
+		
+		densidad_crear = new JTextField();
+		densidad_crear.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				densidad_crear.setEnabled(true);
+				peso_crear.setEnabled(false);
+				peso_crear.setText("");
+			}
+		});
+		densidad_crear.setColumns(10);
+		densidad_crear.setBounds(348, 53, 86, 20);
+		crear.add(densidad_crear);
+		
+		peso_crear = new JTextField();
+		peso_crear.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				peso_crear.setEnabled(true);
+				densidad_crear.setEnabled(false);
+				densidad_crear.setText("");
+			}
+		});
+		peso_crear.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				densidad_crear.setEnabled(false);
+			}
+		});
+		peso_crear.setColumns(10);
+		peso_crear.setBounds(348, 22, 86, 20);
+		crear.add(peso_crear);
+		
+		JButton btnNewButton_10 = new JButton("New button");
+		btnNewButton_10.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(!peso_crear.getText().isEmpty()) {
+					Insumo_general insumo=new Insumo_general();
+					insumo.setCosto(Double.valueOf(costo_crear.getText()));
+					insumo.setDescripcion(descripcion_crear.getText());
+					insumo.setId(Integer.valueOf(id_crear.getText()));
+					insumo.setPeso(Double.valueOf(peso_crear.getText()));
+					insumo.setUnidad_medida(um_crear.getText());
+					Gestor_Insumo.alta_insumo(insumo);
+				}
+				else {
+					Insumo_liquido insumo=new Insumo_liquido();
+					insumo.setCosto(Double.valueOf(costo_crear.getText()));
+					insumo.setDescripcion(descripcion_crear.getText());
+					insumo.setId(Integer.valueOf(id_crear.getText()));
+					insumo.setDensidad(Double.valueOf(densidad_crear.getText()));
+					insumo.setUnidad_medida(um_crear.getText());
+					Gestor_Insumo.alta_insumo(insumo);
+				}
+				
+
+			}
+		});
+		btnNewButton_10.setBounds(467, 52, 89, 23);
+		crear.add(btnNewButton_10);
 		
 		JFormattedTextField fecha_compra_mod = new JFormattedTextField();
 		fecha_compra_mod.setColumns(10);
@@ -250,13 +554,6 @@ public class Zaisser extends JFrame {
 						e1.printStackTrace();
 					}}
 
-					
-					System.out.println(nuevo_camion.getMarca_modelo());
-					System.out.println(nuevo_camion.getPatente());
-					System.out.println(nuevo_camion.getCosto_por_hora());
-					System.out.println(nuevo_camion.getCosto_por_km());
-					System.out.println(nuevo_camion.getFecha_compra());
-					System.out.println(nuevo_camion.getKm_recorridos());
 					Gestor_Camion.modificar_camion(nuevo_camion);
 					
 					patente_mod.setText("");
@@ -352,7 +649,7 @@ public class Zaisser extends JFrame {
 			lblCostoPorHora_1.setBounds(295, 14, 90, 14);
 			modificar_eliminar_camion.add(lblCostoPorHora_1);
 			
-			JLabel lblNewLabel_1_1_1 = new JLabel("Costo por km.");
+			JLabel lblNewLabel_1_1_1 = new JLabel("Costo por km");
 			lblNewLabel_1_1_1.setBounds(295, 45, 90, 14);
 			modificar_eliminar_camion.add(lblNewLabel_1_1_1);
 			
@@ -362,7 +659,7 @@ public class Zaisser extends JFrame {
 			
 			marca_modelo_mod = new JTextField();
 			marca_modelo_mod.setColumns(10);
-			marca_modelo_mod.setBounds(110, 76, 150, 20);
+			marca_modelo_mod.setBounds(110, 76, 120, 20);
 			modificar_eliminar_camion.add(marca_modelo_mod);
 			
 			JLabel lblNewLabel_2_2 = new JLabel("Marca y modelo");
@@ -381,6 +678,30 @@ public class Zaisser extends JFrame {
 			JLabel lblNewLabel_3 = new JLabel("Patente");
 			lblNewLabel_3.setBounds(10, 17, 58, 14);
 			modificar_eliminar_camion.add(lblNewLabel_3);
+			
+			JButton btnNewButton_2 = new JButton("Limpiar");
+			btnNewButton_2.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					patente_mod.setText("");
+					patente_mod.setEnabled(true);
+					costo_por_hora_mod.setText("");
+					costo_por_km_mod.setText("");
+					marca_modelo_mod.setText("");
+					km_recorridos_mod.setText("");
+					fecha_compra_mod.setText("");
+				}
+			});
+			btnNewButton_2.setBounds(494, 42, 77, 20);
+			modificar_eliminar_camion.add(btnNewButton_2);
+			
+			JButton btnNewButton_12 = new JButton("Atr\u00E1s");
+			btnNewButton_12.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPRINCIPAL);
+				}
+			});
+			btnNewButton_12.setBounds(10, 264, 89, 23);
+			modificar_eliminar_camion.add(btnNewButton_12);
 			
 		
 		JPanel crear_camion = new JPanel();
@@ -411,11 +732,11 @@ public class Zaisser extends JFrame {
 				
 			}
 		});
-		btnNewButton_1.setBounds(368, 242, 120, 23);
+		btnNewButton_1.setBounds(395, 104, 120, 23);
 		crear_camion.add(btnNewButton_1);
 		
 		patente_crear = new JFormattedTextField();
-		patente_crear.setBounds(113, 28, 120, 20);
+		patente_crear.setBounds(110, 14, 120, 20);
 		crear_camion.add(patente_crear);
 		patente_crear.setColumns(10);
 			MaskFormatter patente;
@@ -426,42 +747,42 @@ public class Zaisser extends JFrame {
 				e1.printStackTrace();
 			}
 		JLabel lblNewLabel = new JLabel("Patente");
-		lblNewLabel.setBounds(13, 31, 58, 14);
+		lblNewLabel.setBounds(10, 17, 58, 14);
 		crear_camion.add(lblNewLabel);
 		
 		JLabel lblNewLabel_1 = new JLabel("Km recorridos");
-		lblNewLabel_1.setBounds(13, 62, 90, 14);
+		lblNewLabel_1.setBounds(10, 48, 90, 14);
 		crear_camion.add(lblNewLabel_1);
 		
 		km_recorridos_crear = new JTextField();
 		km_recorridos_crear.setColumns(10);
-		km_recorridos_crear.setBounds(113, 59, 120, 20);
+		km_recorridos_crear.setBounds(110, 45, 120, 20);
 		crear_camion.add(km_recorridos_crear);
 		
 		JLabel lblNewLabel_2 = new JLabel("Marca y modelo");
-		lblNewLabel_2.setBounds(13, 93, 90, 14);
+		lblNewLabel_2.setBounds(10, 79, 90, 14);
 		crear_camion.add(lblNewLabel_2);
 		
 		marca_modelo_crear = new JTextField();
 		marca_modelo_crear.setColumns(10);
-		marca_modelo_crear.setBounds(113, 90, 150, 20);
+		marca_modelo_crear.setBounds(110, 76, 120, 20);
 		crear_camion.add(marca_modelo_crear);
 		
 		JLabel lblCostoPorHora = new JLabel("Costo por hora");
-		lblCostoPorHora.setBounds(298, 28, 90, 14);
+		lblCostoPorHora.setBounds(295, 14, 90, 14);
 		crear_camion.add(lblCostoPorHora);
 		
 		JLabel lblNewLabel_1_1 = new JLabel("Costo por km.");
-		lblNewLabel_1_1.setBounds(298, 59, 90, 14);
+		lblNewLabel_1_1.setBounds(295, 45, 90, 14);
 		crear_camion.add(lblNewLabel_1_1);
 		
 		JLabel lblNewLabel_2_1 = new JLabel("Fecha de compra");
-		lblNewLabel_2_1.setBounds(298, 90, 90, 14);
+		lblNewLabel_2_1.setBounds(295, 76, 90, 14);
 		crear_camion.add(lblNewLabel_2_1);
 		
 		fecha_compra_crear = new JFormattedTextField();
 		fecha_compra_crear.setColumns(10);
-		fecha_compra_crear.setBounds(398, 87, 89, 20);
+		fecha_compra_crear.setBounds(395, 73, 89, 20);
 		crear_camion.add(fecha_compra_crear);
 		MaskFormatter dateMask;
 		try {
@@ -476,12 +797,12 @@ public class Zaisser extends JFrame {
 		
 		costo_por_km_crear = new JTextField();
 		costo_por_km_crear.setColumns(10);
-		costo_por_km_crear.setBounds(398, 56, 89, 20);
+		costo_por_km_crear.setBounds(395, 42, 89, 20);
 		crear_camion.add(costo_por_km_crear);
 		
 		costo_por_hora_crear = new JTextField();
 		costo_por_hora_crear.setColumns(10);
-		costo_por_hora_crear.setBounds(398, 25, 89, 20);
+		costo_por_hora_crear.setBounds(395, 11, 89, 20);
 		crear_camion.add(costo_por_hora_crear);
 		
 		JPanel menu_planta_ruta = new JPanel();
@@ -597,6 +918,17 @@ public class Zaisser extends JFrame {
 				});
 				btnNewButton_6.setBounds(229, 132, 112, 23);
 				panel_1.add(btnNewButton_6);
+				
+				JButton btnNewButton_13 = new JButton("Atr\u00E1s");
+				btnNewButton_13.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPRINCIPAL);
+					}
+				});
+				btnNewButton_13.setBounds(10, 275, 89, 23);
+				menu_planta_ruta.add(btnNewButton_13);
+				
+
 
 	}
 }

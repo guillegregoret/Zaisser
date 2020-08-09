@@ -136,7 +136,7 @@ public class Gestor_Camion {
 				stmt.setString(i, sdf.format(c.getFecha_compra()));
 				
 			}
-			stmt.execute();
+			stmt.execute(); //------------------------------------------
 			
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) {
