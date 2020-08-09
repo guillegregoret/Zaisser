@@ -1,5 +1,5 @@
 package GUI;
-//JOptionPane.showMessageDialog(null, "Seleccionar un cliente", "Error", JOptionPane.INFORMATION_MESSAGE); 
+ 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -21,10 +21,12 @@ import Dominio.Insumo_general;
 import Dominio.Insumo_liquido;
 import Dominio.Planta;
 import Dominio.Ruta;
+import Dominio.Stock;
 import Gestores.Gestor_Camion;
 import Gestores.Gestor_Insumo;
 import Gestores.Gestor_Planta;
 import Gestores.Gestor_Ruta;
+import Gestores.Gestor_Stock;
 import database.RunHSQLDB;
 
 import java.awt.CardLayout;
@@ -68,6 +70,8 @@ public class Zaisser extends JFrame {
 	private final static String MENUPLANTA="name_5544200076900";
 	private final static String MENUINSUMO="name_165698070879700";
 	private final static String MENUPRINCIPAL="name_5500757628000";
+	private final static String MENUSTOCK="name_74420176734100";
+	
 	
 	
 	private JPanel contentPane;
@@ -101,6 +105,12 @@ public class Zaisser extends JFrame {
 	private JTextField id_crear;
 	private JTextField densidad_crear;
 	private JTextField peso_crear;
+	private JTextField textField;
+	private JTextField cant_stock;
+	private JTextField punto_pedido_stock;
+	private JTable tabla_stock_pp;
+	private JTextField planta_pp;
+	private JTextField insumo_pp;
 
 	public static void main(String[] args) {
 		try{
@@ -150,7 +160,7 @@ public class Zaisser extends JFrame {
 		JButton btnNewButton = new JButton("Administrar Camiones");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				((CardLayout)getContentPane().getLayout()).show(getContentPane(), "MENUCAMION");
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUCAMION);
 				//menu_principal.hide();
 			}
 		});
@@ -175,8 +185,17 @@ public class Zaisser extends JFrame {
 		btnNewButton_7.setBounds(314, 25, 142, 46);
 		menu_principal.add(btnNewButton_7);
 		
+		JButton btnNewButton_16 = new JButton("Administrar Stock");
+		btnNewButton_16.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUSTOCK);
+			}
+		});
+		btnNewButton_16.setBounds(10, 82, 142, 46);
+		menu_principal.add(btnNewButton_16);
+		
 		JPanel menu_camion = new JPanel();
-		contentPane.add(menu_camion, "MENUCAMION");
+		contentPane.add(menu_camion, MENUCAMION);
 		menu_camion.setLayout(null);
 		
 		JFormattedTextField patente_mod = new JFormattedTextField();
@@ -266,7 +285,7 @@ public class Zaisser extends JFrame {
 			new Object[][] {
 			},
 			new String[] {
-				"ID", "Descripción", "Costo", "Unidad de medida", "Peso (IG)", "Densidad (IL)"
+				"ID", "Descripción", "Costo", "Unidad de medida", "Peso (IG)", "Densidad (IL)", "Stock total"
 			}
 		));
 		scrollPane_1.setViewportView(table_buscar_insumo);
@@ -286,7 +305,7 @@ public class Zaisser extends JFrame {
 				else {	
 					((DefaultTableModel)table_buscar_insumo.getModel()).setRowCount(0);
 				for (Insumo i : Auxinsumo) {
-						Object[] auxRow = new Object[6];
+						Object[] auxRow = new Object[7];
 						auxRow[0] = i.getId();
 						auxRow[1] = i.getDescripcion();
 						auxRow[2] = i.getCosto();
@@ -297,6 +316,7 @@ public class Zaisser extends JFrame {
 						if(i instanceof Insumo_liquido) {
 							auxRow[5]=((Insumo_liquido) i).getDensidad();
 						}
+						auxRow[6] = Gestor_Stock.stock_total(i.getId()); 
 						((DefaultTableModel)table_buscar_insumo.getModel()).addRow(auxRow);
 					}
 				}
@@ -351,6 +371,11 @@ public class Zaisser extends JFrame {
 		});
 		btnNewButton_15.setBounds(384, 288, 89, 23);
 		modificar_eliminar.add(btnNewButton_15);
+		
+		textField = new JTextField();
+		textField.setBounds(485, 21, 87, 20);
+		modificar_eliminar.add(textField);
+		textField.setColumns(10);
 		
 		JPanel crear = new JPanel();
 		tabbedPane_1.addTab("Crear", null, crear, null);
@@ -927,6 +952,145 @@ public class Zaisser extends JFrame {
 				});
 				btnNewButton_13.setBounds(10, 275, 89, 23);
 				menu_planta_ruta.add(btnNewButton_13);
+				
+				JPanel menu_stock = new JPanel();
+				contentPane.add(menu_stock, MENUSTOCK);
+				menu_stock.setLayout(null);
+
+				JTabbedPane tabbedPane_2 = new JTabbedPane(JTabbedPane.TOP);
+				tabbedPane_2.setBounds(0, 0, 577, 310);
+				menu_stock.add(tabbedPane_2);
+				
+				JPanel agregar_stock = new JPanel();
+				tabbedPane_2.addTab("Agregar stock", null, agregar_stock, null);
+				agregar_stock.setLayout(null);
+				
+				JLabel Planta = new JLabel("Planta");
+				Planta.setBounds(25, 14, 46, 14);
+				agregar_stock.add(Planta);
+				
+				JLabel lblNewLabel_15 = new JLabel("Cantidad");
+				lblNewLabel_15.setBounds(25, 58, 46, 14);
+				agregar_stock.add(lblNewLabel_15);
+				
+				cant_stock = new JTextField();
+				cant_stock.setBounds(87, 55, 121, 20);
+				agregar_stock.add(cant_stock);
+				cant_stock.setColumns(10);
+				
+				JComboBox<String> planta_stock = new JComboBox<String>();
+				planta_stock.setBounds(87, 11, 121, 20);
+				agregar_stock.add(planta_stock);
+				
+				JLabel lblNewLabel_14 = new JLabel("Insumo");
+				lblNewLabel_14.setBounds(226, 14, 46, 14);
+				agregar_stock.add(lblNewLabel_14);
+				
+				JLabel lblNewLabel_16 = new JLabel("Punto de pedido");
+				lblNewLabel_16.setBounds(226, 58, 78, 14);
+				agregar_stock.add(lblNewLabel_16);
+				
+				punto_pedido_stock = new JTextField();
+				punto_pedido_stock.setBounds(314, 55, 121, 20);
+				agregar_stock.add(punto_pedido_stock);
+				punto_pedido_stock.setColumns(10);
+				
+				JComboBox<String> insumo_stock = new JComboBox<String>();
+				for(int i = 0 ; i < plantas.size() ; i++) {
+					planta_stock.addItem(plantas.get(i).getNombre());
+				}
+				
+				
+				ArrayList<Insumo> insumos = Gestor_Insumo.getInsumo();
+				for (int i = 0; i < insumos.size(); i++) {
+					insumo_stock.addItem(insumos.get(i).getDescripcion());
+				}
+				
+				insumo_stock.setBounds(314, 11, 121, 20);
+				agregar_stock.add(insumo_stock);
+				
+				JButton btnNewButton_18 = new JButton("Atr\u00E1s");
+				btnNewButton_18.setBounds(25, 150, 89, 23);
+				agregar_stock.add(btnNewButton_18);
+				
+				JButton btnNewButton_17 = new JButton("Guardar");
+				btnNewButton_17.setBounds(443, 137, 89, 23);
+				agregar_stock.add(btnNewButton_17);
+				btnNewButton_17.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Stock s = new Stock();
+						s.setPlanta(Gestor_Planta.getID(planta_stock.getSelectedItem().toString()));
+						s.setInsumo(Gestor_Insumo.getID(insumo_stock.getSelectedItem().toString()));
+						s.setCantidad(Integer.valueOf(cant_stock.getText()));
+						s.setPunto_pedido(Integer.valueOf(punto_pedido_stock.getText()));
+						Gestor_Stock.guardarStock(s);
+					}
+				});
+				btnNewButton_18.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPRINCIPAL);
+					}
+				});
+				
+				JPanel punto_pedido = new JPanel();
+				tabbedPane_2.addTab("Stock en punto de pedido", null, punto_pedido, null);
+				punto_pedido.setLayout(null);
+				
+				JScrollPane scrollPane_2 = new JScrollPane();
+				scrollPane_2.setBounds(10, 41, 552, 230);
+				punto_pedido.add(scrollPane_2);
+				
+				tabla_stock_pp = new JTable();
+				tabla_stock_pp.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"Planta", "Insumo", "Cantidad", "Punto pedido", "Stock total"
+					}
+				));
+				scrollPane_2.setViewportView(tabla_stock_pp);
+				
+				JButton btnNewButton_19 = new JButton("Buscar");
+				btnNewButton_19.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						ArrayList<Stock> stock_aux = Gestor_Stock.getStocks(planta_pp.getText(), insumo_pp.getText());
+						if(stock_aux.isEmpty())	JOptionPane.showMessageDialog(null, "No se encontraron stocks", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+						else {	
+							((DefaultTableModel)tabla_stock_pp.getModel()).setRowCount(0);
+						for (Stock i : stock_aux) {
+								Object[] auxRow = new Object[5];
+								auxRow[0] = Gestor_Planta.getNombre(i.getPlanta());
+								auxRow[1] = Gestor_Insumo.getNombre(i.getInsumo());
+								auxRow[2] = i.getCantidad();
+								auxRow[3] = i.getPunto_pedido();
+								auxRow[4] = Gestor_Stock.stock_total(i.getInsumo()); 
+								((DefaultTableModel)tabla_stock_pp.getModel()).addRow(auxRow);
+							}
+						}
+					}
+					}
+				);
+				btnNewButton_19.setBounds(473, 7, 89, 23);
+				punto_pedido.add(btnNewButton_19);
+				
+				planta_pp = new JTextField();
+				planta_pp.setBounds(83, 8, 111, 20);
+				punto_pedido.add(planta_pp);
+				planta_pp.setColumns(10);
+				
+				insumo_pp = new JTextField();
+				insumo_pp.setBounds(280, 8, 111, 20);
+				punto_pedido.add(insumo_pp);
+				insumo_pp.setColumns(10);
+				
+				JLabel lblNewLabel_17 = new JLabel("Planta");
+				lblNewLabel_17.setBounds(10, 11, 63, 14);
+				punto_pedido.add(lblNewLabel_17);
+				
+				JLabel lblNewLabel_18 = new JLabel("Insumo");
+				lblNewLabel_18.setBounds(204, 11, 46, 14);
+				punto_pedido.add(lblNewLabel_18);
 				
 
 

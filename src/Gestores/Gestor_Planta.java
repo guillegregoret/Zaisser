@@ -27,6 +27,15 @@ public class Gestor_Planta {
 		}
 		 return -1;
 	}
+	public static String getNombre(Integer id) {
+		 ArrayList<Planta> plantas = Gestor_Planta.getPlantas();
+		 for (int i = 0; i < plantas.size(); i++) {
+			if(plantas.get(i).getId().equals(id)) {
+				return plantas.get(i).getNombre();
+			}
+		}
+		 return "";
+	}
 	public static void altaPlanta(Planta p) {
 		ConnectDatabase condb = new ConnectDatabase();
 		String query = "INSERT INTO PLANTA VALUES(?, ?);";

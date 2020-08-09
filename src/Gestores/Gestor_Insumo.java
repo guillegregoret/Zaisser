@@ -80,6 +80,46 @@ public class Gestor_Insumo {
 		}
 		
 	}
+	public static ArrayList<Insumo> getInsumo() {
+		ArrayList<Insumo> insumos = new ArrayList<Insumo>();
+		ConnectDatabase condb = new ConnectDatabase();
+		String query = "SELECT * FROM INSUMO ";
+				PreparedStatement stmt = condb.preparedStatement(query);
+		try {
+				stmt.execute();
+				ResultSet rs = stmt.executeQuery();
+
+				while(rs.next()) {
+					
+					if(rs.getString("PESO") != null) {
+						Insumo_general insumo_temp = new Insumo_general();
+						insumo_temp.setCosto(Double.valueOf(rs.getDouble("COSTO")));
+						insumo_temp.setDescripcion(rs.getString("DESCRIPCION"));
+						insumo_temp.setId(rs.getInt("ID"));
+						insumo_temp.setUnidad_medida(rs.getString("UNIDAD_MEDIDA"));
+						insumo_temp.setPeso(rs.getDouble("PESO"));
+						insumos.add(insumo_temp);
+					}
+					else {
+						Insumo_liquido insumo_temp = new Insumo_liquido();
+					insumo_temp.setCosto(Double.valueOf(rs.getDouble("COSTO")));
+					insumo_temp.setDescripcion(rs.getString("DESCRIPCION"));
+					insumo_temp.setId(rs.getInt("ID"));
+					insumo_temp.setUnidad_medida(rs.getString("UNIDAD_MEDIDA"));
+					insumo_temp.setDensidad(rs.getDouble("DENSIDAD"));
+
+					insumos.add(insumo_temp);
+					}
+
+				}
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			
+		return insumos;
+	}
 	public static ArrayList<Insumo> getInsumo(Insumo i) {
 		ArrayList<Insumo> insumos = new ArrayList<Insumo>();
 		ConnectDatabase condb = new ConnectDatabase();
@@ -158,6 +198,24 @@ public class Gestor_Insumo {
 
 			
 		return insumos;
+	}
+	public static Integer getID(String descripcion) {
+		 ArrayList<Insumo> insumos = Gestor_Insumo.getInsumo();
+		 for (int i = 0; i < insumos.size(); i++) {
+			if(insumos.get(i).getDescripcion().equals(descripcion)) {
+				return insumos.get(i).getId();
+			}
+		}
+		 return -1;
+	}
+	public static String getNombre(Integer id) {
+		 ArrayList<Insumo> insumos = Gestor_Insumo.getInsumo();
+		 for (int i = 0; i < insumos.size(); i++) {
+			if(insumos.get(i).getId() == id) {
+				return insumos.get(i).getDescripcion();
+			}
+		}
+		 return "";
 	}
 	public static Integer next_id() {
 		ConnectDatabase condb = new ConnectDatabase();
