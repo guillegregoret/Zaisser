@@ -10,7 +10,7 @@ public class Orden_pedido {
 	private Date fecha_entrega;
 	private String estado;
 	private ArrayList insumos;
-	private Integer id_camion;
+	private String id_camion;
 	private Ruta ruta;
 	private Double costo_envio;
 	public Integer getId() {
@@ -49,10 +49,11 @@ public class Orden_pedido {
 	public void setInsumos(ArrayList insumos) {
 		this.insumos = insumos;
 	}
-	public Integer getId_camion() {
+
+	public String getId_camion() {
 		return id_camion;
 	}
-	public void setId_camion(Integer id_camion) {
+	public void setId_camion(String id_camion) {
 		this.id_camion = id_camion;
 	}
 	public Ruta getRuta() {

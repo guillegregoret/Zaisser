@@ -118,6 +118,58 @@ public class Gestor_Stock {
 			
 		return st;
 	}
+	public static ArrayList<Stock> getStocks() {
+		ArrayList<Stock> st = new ArrayList<Stock>();
+		
+		ConnectDatabase condb = new ConnectDatabase();
+		String query = "SELECT * FROM STOCK";
+		PreparedStatement stmt = condb.preparedStatement(query);
+			try {
+				stmt.execute();
+				ResultSet rs = stmt.executeQuery();
+
+				while(rs.next()) {
+					Stock s_aux = new Stock();
+					s_aux.setCantidad(rs.getInt("CANTIDAD"));
+					s_aux.setPunto_pedido(rs.getInt("PUNTO_PEDIDO"));
+					s_aux.setPlanta(rs.getInt("PLANTA"));
+					s_aux.setInsumo(rs.getInt("INSUMO"));
+					
+					st.add(s_aux);
+				}
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		return st;
+	}
+	public static ArrayList<Integer> getPlantas(Integer insumo, Integer cantidad) {
+		ArrayList<Integer> st = new ArrayList<Integer>();
+		
+		ConnectDatabase condb = new ConnectDatabase();
+		String query = "SELECT * FROM STOCK WHERE CANTIDAD > ? AND INSUMO = ?";
+		
+		
+		PreparedStatement stmt = condb.preparedStatement(query);
+		
+			try {
+				stmt.setInt(1, cantidad);
+				stmt.setInt(2, insumo);
+				stmt.execute();
+				ResultSet rs = stmt.executeQuery();
+
+				while(rs.next()) {
+					st.add(rs.getInt("PLANTA"));
+				
+				}
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			
+		return st;
+	}
 
 }
 

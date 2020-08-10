@@ -54,14 +54,16 @@ public class Gestor_Ruta {
 		ArrayList<Ruta> r = new ArrayList<Ruta>();
 		ConnectDatabase condb = new ConnectDatabase();
 		String query = "SELECT * FROM RUTA";
-		Planta po=new Planta();
-		Planta pd=new Planta();
+		
 		PreparedStatement stmt = condb.preparedStatement(query);
 		try {
 			stmt.execute();
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) {
+				
 				Ruta rutaaux = new Ruta();
+				Planta po=new Planta();
+				Planta pd=new Planta();
 				rutaaux.setDistancia_km(rs.getInt("DISTANCIA_KM"));
 				rutaaux.setDuracion_horas(rs.getDouble("DURACION_HS"));
 				rutaaux.setPeso_max_kg(rs.getDouble("PESO_MAX_KG"));

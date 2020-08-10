@@ -83,6 +83,36 @@ public class Gestor_Camion {
 		}
 		
 	}
+	public static ArrayList<Camion> getCamiones() {
+		ArrayList<Camion> camiones = new ArrayList<Camion>();
+		ConnectDatabase condb = new ConnectDatabase();
+
+		String query = "SELECT * FROM CAMION";
+		PreparedStatement stmt = condb.preparedStatement(query);
+		
+		try {
+
+			stmt.execute(); //------------------------------------------
+			
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Camion camion_temp = new Camion();
+				camion_temp.setPatente(rs.getString("PATENTE"));
+				camion_temp.setMarca_modelo(rs.getString("MARCA_MODELO"));
+				camion_temp.setKm_recorridos(rs.getInt("KM_RECORRIDOS"));
+				camion_temp.setCosto_por_km(rs.getDouble("COSTO_POR_KM"));
+				camion_temp.setCosto_por_hora(rs.getDouble("COSTO_POR_HORA"));
+				camion_temp.setFecha_compra(rs.getDate("FECHA_COMPRA"));
+				
+				camiones.add(camion_temp);
+			}
+			stmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return camiones;
+	}
 	public static ArrayList<Camion> getCamiones(Camion c) {
 		ArrayList<Camion> camiones = new ArrayList<Camion>();
 		ConnectDatabase condb = new ConnectDatabase();

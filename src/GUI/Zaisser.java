@@ -15,6 +15,7 @@ import javax.swing.text.MaskFormatter;
 import com.sun.xml.internal.ws.util.StringUtils;
 
 import Dominio.Camion;
+import Dominio.CamionComparator;
 import Dominio.Grafo;
 import Dominio.Insumo;
 import Dominio.Insumo_general;
@@ -47,6 +48,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.PriorityQueue;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -74,10 +76,7 @@ public class Zaisser extends JFrame {
 	private final static String MENUPRINCIPAL="name_5500757628000";
 	private final static String MENUSTOCK="name_74420176734100";
 	private final static String MENUORDENPEDIDO="name_106911205741000";
-	
-	
-	
-	
+	private final static String MENUESTADISTICAS="name_15197001498700";
 	
 	private JPanel contentPane;
 	private JFormattedTextField patente_crear;
@@ -110,7 +109,6 @@ public class Zaisser extends JFrame {
 	private JTextField id_crear;
 	private JTextField densidad_crear;
 	private JTextField peso_crear;
-	private JTextField textField;
 	private JTextField cant_stock;
 	private JTextField punto_pedido_stock;
 	private JTable tabla_stock_pp;
@@ -119,6 +117,16 @@ public class Zaisser extends JFrame {
 	private JFormattedTextField fecha_entrega_reg_orden;
 	private JTable tabla_reg_orden;
 	private JTextField cant_reg_pedido;
+	private JTable tabla_admin_orden;
+	private JTable tabla_page_rank;
+	private JTable tabla_plantas_ok;
+	private PriorityQueue<Camion> camion_queue;
+	private JTable tabla_rutas;
+	private Grafo g;
+	
+	
+	private Planta aux_plantao;
+	private Planta aux_plantad;
 
 	public static void main(String[] args) {
 		try{
@@ -142,7 +150,8 @@ public class Zaisser extends JFrame {
 
 	public Zaisser() {
 		
-		
+
+		 
 		setIconImage(Toolkit.getDefaultToolkit().getImage("D:\\DIED\\Zaisser\\Zaisser.ico"));
 		setTitle("Zaisser - Log\u00EDstica de Transporte");
 		setResizable(false);
@@ -164,6 +173,15 @@ public class Zaisser extends JFrame {
 		JPanel menu_principal = new JPanel();
 		contentPane.add(menu_principal, MENUPRINCIPAL);
 		menu_principal.setLayout(null);
+		
+		camion_queue = new PriorityQueue<Camion>(50, new CamionComparator());
+		
+		ArrayList<Camion> camiones = Gestor_Camion.getCamiones();
+		
+		for (int i = 0; i < camiones.size(); i++) {
+			camion_queue.add(camiones.get(i));
+			System.out.println(	camiones.get(i).getKm_recorridos());
+		}
 		
 		JButton btnNewButton = new JButton("Administrar Camiones");
 		btnNewButton.addActionListener(new ActionListener() {
@@ -210,6 +228,15 @@ public class Zaisser extends JFrame {
 		});
 		btnNewButton_22.setBounds(162, 82, 142, 46);
 		menu_principal.add(btnNewButton_22);
+		
+		JButton btnNewButton_26 = new JButton("Estad\u00EDsticas");
+		btnNewButton_26.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUESTADISTICAS);
+			}
+		});
+		btnNewButton_26.setBounds(314, 82, 142, 46);
+		menu_principal.add(btnNewButton_26);
 		
 		JPanel menu_camion = new JPanel();
 		contentPane.add(menu_camion, MENUCAMION);
@@ -389,11 +416,6 @@ public class Zaisser extends JFrame {
 		btnNewButton_15.setBounds(384, 288, 89, 23);
 		modificar_eliminar.add(btnNewButton_15);
 		
-		textField = new JTextField();
-		textField.setBounds(485, 21, 87, 20);
-		modificar_eliminar.add(textField);
-		textField.setColumns(10);
-		
 		JPanel crear = new JPanel();
 		tabbedPane_1.addTab("Crear", null, crear, null);
 		crear.setLayout(null);
@@ -482,7 +504,7 @@ public class Zaisser extends JFrame {
 		peso_crear.setBounds(348, 22, 86, 20);
 		crear.add(peso_crear);
 		
-		JButton btnNewButton_10 = new JButton("New button");
+		JButton btnNewButton_10 = new JButton("Guardar");
 		btnNewButton_10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(!peso_crear.getText().isEmpty()) {
@@ -875,7 +897,7 @@ public class Zaisser extends JFrame {
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Generar Rutas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.setBounds(10, 99, 567, 165);
+		panel_1.setBounds(10, 99, 567, 203);
 		menu_planta_ruta.add(panel_1);
 		panel_1.setLayout(null);
 		
@@ -958,7 +980,7 @@ public class Zaisser extends JFrame {
 					
 					}
 				});
-				btnNewButton_6.setBounds(229, 132, 112, 23);
+				btnNewButton_6.setBounds(229, 169, 112, 23);
 				panel_1.add(btnNewButton_6);
 				
 				JButton btnNewButton_13 = new JButton("Atr\u00E1s");
@@ -967,7 +989,7 @@ public class Zaisser extends JFrame {
 						((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUPRINCIPAL);
 					}
 				});
-				btnNewButton_13.setBounds(10, 275, 89, 23);
+				btnNewButton_13.setBounds(10, 313, 89, 23);
 				menu_planta_ruta.add(btnNewButton_13);
 				
 				JPanel menu_stock = new JPanel();
@@ -1027,11 +1049,11 @@ public class Zaisser extends JFrame {
 				agregar_stock.add(insumo_stock);
 				
 				JButton btnNewButton_18 = new JButton("Atr\u00E1s");
-				btnNewButton_18.setBounds(25, 150, 89, 23);
+				btnNewButton_18.setBounds(25, 99, 89, 23);
 				agregar_stock.add(btnNewButton_18);
 				
 				JButton btnNewButton_17 = new JButton("Guardar");
-				btnNewButton_17.setBounds(443, 137, 89, 23);
+				btnNewButton_17.setBounds(346, 99, 89, 23);
 				agregar_stock.add(btnNewButton_17);
 				btnNewButton_17.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -1088,25 +1110,25 @@ public class Zaisser extends JFrame {
 					}
 					}
 				);
-				btnNewButton_19.setBounds(473, 7, 89, 23);
+				btnNewButton_19.setBounds(456, 12, 89, 23);
 				punto_pedido.add(btnNewButton_19);
 				
 				planta_pp = new JTextField();
-				planta_pp.setBounds(83, 8, 111, 20);
+				planta_pp.setBounds(52, 13, 111, 20);
 				punto_pedido.add(planta_pp);
 				planta_pp.setColumns(10);
 				
 				insumo_pp = new JTextField();
-				insumo_pp.setBounds(280, 8, 111, 20);
+				insumo_pp.setBounds(239, 13, 111, 20);
 				punto_pedido.add(insumo_pp);
 				insumo_pp.setColumns(10);
 				
 				JLabel lblNewLabel_17 = new JLabel("Planta");
-				lblNewLabel_17.setBounds(10, 11, 63, 14);
+				lblNewLabel_17.setBounds(10, 16, 46, 14);
 				punto_pedido.add(lblNewLabel_17);
 				
 				JLabel lblNewLabel_18 = new JLabel("Insumo");
-				lblNewLabel_18.setBounds(204, 11, 46, 14);
+				lblNewLabel_18.setBounds(183, 16, 46, 14);
 				punto_pedido.add(lblNewLabel_18);
 				
 				JPanel menu_orden_pedido = new JPanel();
@@ -1128,14 +1150,14 @@ public class Zaisser extends JFrame {
 				for(int i = 0 ; i < plantas.size() ; i++) {
 					platas_reg_orden.addItem(plantas.get(i).getNombre());
 				}
-				platas_reg_orden.setBounds(108, 29, 138, 20);
+				platas_reg_orden.setBounds(108, 22, 138, 20);
 				registrar_orden.add(platas_reg_orden);
 				
 				
 				
 				
 				JScrollPane scrollPane_3 = new JScrollPane();
-				scrollPane_3.setBounds(39, 170, 509, 104);
+				scrollPane_3.setBounds(20, 170, 552, 104);
 				registrar_orden.add(scrollPane_3);
 				
 				tabla_reg_orden = new JTable();
@@ -1149,16 +1171,16 @@ public class Zaisser extends JFrame {
 				scrollPane_3.setViewportView(tabla_reg_orden);
 				
 				JLabel lblNewLabel_19 = new JLabel("Planta");
-				lblNewLabel_19.setBounds(20, 32, 46, 14);
+				lblNewLabel_19.setBounds(20, 25, 46, 14);
 				registrar_orden.add(lblNewLabel_19);
 				
 				JLabel lblNewLabel_20 = new JLabel("Fecha entrega");
-				lblNewLabel_20.setBounds(20, 64, 78, 14);
+				lblNewLabel_20.setBounds(20, 57, 78, 14);
 				registrar_orden.add(lblNewLabel_20);
 				
 				JPanel panel_2 = new JPanel();
 				panel_2.setBorder(new TitledBorder(null, "A\u00F1adir insumo a pedido", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-				panel_2.setBounds(39, 94, 509, 65);
+				panel_2.setBounds(20, 94, 552, 65);
 				registrar_orden.add(panel_2);
 				panel_2.setLayout(null);
 				
@@ -1196,7 +1218,7 @@ public class Zaisser extends JFrame {
 						aux_insumos.add(temp);
 					}
 				});
-				btnNewButton_21.setBounds(395, 28, 89, 23);
+				btnNewButton_21.setBounds(453, 28, 89, 23);
 				panel_2.add(btnNewButton_21);
 				
 				JLabel lblNewLabel_21 = new JLabel("Cantidad");
@@ -1204,19 +1226,294 @@ public class Zaisser extends JFrame {
 				panel_2.add(lblNewLabel_21);
 				
 				JPanel panel_3 = new JPanel();
-				tabbedPane_3.addTab("New tab", null, panel_3, null);
+				tabbedPane_3.addTab("Administrar orden", null, panel_3, null);
+				panel_3.setLayout(null);
+				
+				JPanel panel_4 = new JPanel();
+				panel_4.setBorder(new TitledBorder(null, "Ordenes creadas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+				panel_4.setBounds(10, 11, 562, 140);
+				panel_3.add(panel_4);
+				panel_4.setLayout(null);
+				
+				JScrollPane scrollPane_4 = new JScrollPane();
+				scrollPane_4.setBounds(10, 22, 542, 70);
+				panel_4.add(scrollPane_4);
+				
+				tabla_admin_orden = new JTable();
+				tabla_admin_orden.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"Nro orden", "Planta", "Fecha solicitud", "Fecha entrega", "Estado"
+					}
+				));
+				scrollPane_4.setViewportView(tabla_admin_orden);
+				
+				JButton btnNewButton_23 = new JButton("Buscar");
+				btnNewButton_23.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						ArrayList<Orden_pedido> Aux = Gestor_Pedido.getPedidos();
+						if(Aux.isEmpty())	JOptionPane.showMessageDialog(null, "No se encontraron pedidos", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+						else {	
+							((DefaultTableModel)tabla_admin_orden.getModel()).setRowCount(0);
+						for (Orden_pedido i : Aux) {
+								Object[] auxRow = new Object[5];
+								auxRow[0] = i.getId();
+								auxRow[1] = Gestor_Planta.getNombre(i.getPlanta_destino_id());
+								auxRow[2] = i.getFecha_solicitud();
+								auxRow[3] = i.getFecha_entrega();
+								auxRow[4] = i.getEstado();
+								((DefaultTableModel)tabla_admin_orden.getModel()).addRow(auxRow);
+						
+						
+						
+						
+						
+						
+					}}}
+				});
+				btnNewButton_23.setBounds(449, 103, 103, 23);
+				panel_4.add(btnNewButton_23);
+				
+				JButton btnNewButton_24 = new JButton("Ver detalle");
+				btnNewButton_24.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+					}
+				});
+				btnNewButton_24.setBounds(350, 103, 89, 23);
+				panel_4.add(btnNewButton_24);
+				
+				JButton btnNewButton_25 = new JButton("Seleccionar");
+				btnNewButton_25.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						((DefaultTableModel)tabla_plantas_ok.getModel()).setRowCount(0);
+						ArrayList<ArrayList<Object>> ic = Gestor_Pedido.getInsumoCantidad((Integer) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 0));
+						ArrayList<ArrayList<Integer>> aux = new ArrayList<ArrayList<Integer>>();  
+						for(ArrayList<Object> temp : ic) {
+							aux.add(Gestor_Stock.getPlantas((Integer)temp.get(0),(Integer) temp.get(1)));
+						}
+						
+						
+						if(ic.size() == 1) {
+							if(aux.get(0).isEmpty()) {
+								Gestor_Pedido.cancelar_pedido((Integer) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 0));
+								System.out.println("CANCELADO");
+							}
+							else {
+								System.out.println(aux);
+								for (int i = 0; i < aux.get(0).size(); i++) {
+									Object[] auxRow = new Object[1];
+									auxRow[0] = Gestor_Planta.getNombre(aux.get(0).get(i));
+	 
+									((DefaultTableModel)tabla_plantas_ok.getModel()).addRow(auxRow);
+								}
+							}
+						}
+						else {
+
+							ArrayList<Boolean> auxx = new ArrayList<Boolean>();
+							if(aux.get(0).isEmpty()) {
+								Gestor_Pedido.cancelar_pedido((Integer) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 0));
+								System.out.println("CANCELADO");
+							}else {
+								
+								
+									for (int i = 0; i < aux.get(0).size(); i++) {
+										Integer temp = aux.get(0).get(i);
+										ArrayList<Boolean> bool = new ArrayList<Boolean>();
+										
+										for(ArrayList<Integer> plantas : aux ) {
+											bool.add(plantas.contains(temp));
+										}
+										Boolean z = Boolean.TRUE;
+										
+										for(Boolean t : bool) {
+											if(t == Boolean.FALSE) {
+												z=Boolean.FALSE;
+												break;
+											}
+										}
+										auxx.add(z);
+										
+									}
+									
+									if(auxx.contains(Boolean.TRUE)) {
+										for (int i = 0; i < auxx.size(); i++) {
+											if(auxx.get(i)) {
+												System.out.println(Gestor_Planta.getNombre(aux.get(0).get(i)));
+												Object[] auxRow = new Object[1];
+												auxRow[0] = Gestor_Planta.getNombre(aux.get(0).get(i));
+				 
+												((DefaultTableModel)tabla_plantas_ok.getModel()).addRow(auxRow);
+											}
+										}
+									}else {
+										Gestor_Pedido.cancelar_pedido((Integer) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 0));
+										System.out.println("CANCELADO");
+									}
+								}
+							}
+	
+				}
+				});
+				btnNewButton_25.setBounds(251, 103, 89, 23);
+				panel_4.add(btnNewButton_25);
+				
+				JPanel panel_5 = new JPanel();
+				panel_5.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Plantas con stock disponible", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+				panel_5.setBounds(10, 150, 562, 130);
+				panel_3.add(panel_5);
+				panel_5.setLayout(null);
+				
+				JScrollPane scrollPane_6 = new JScrollPane();
+				scrollPane_6.setBounds(10, 24, 213, 86);
+				panel_5.add(scrollPane_6);
+				
+				tabla_plantas_ok = new JTable();
+				tabla_plantas_ok.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"Plantas"
+					}
+				));
+				scrollPane_6.setViewportView(tabla_plantas_ok);
+				
+				JScrollPane scrollPane_7 = new JScrollPane();
+				scrollPane_7.setBounds(291, 24, 241, 86);
+				panel_5.add(scrollPane_7);
+				
+				tabla_rutas = new JTable();
+				tabla_rutas.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"Rutas posibles"
+					}
+				));
+				scrollPane_7.setViewportView(tabla_rutas);
+				
+				JButton btnNewButton_28 = new JButton("New button");
+				btnNewButton_28.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Grafo g = new Grafo();
+						
+						//tabla_plantas_ok.getModel().getValueAt(tabla_plantas_ok.getSelectedRow(), 0);
+						
+						for (Planta p : Gestor_Planta.getPlantas()) {
+							if(p.getNombre()==(String) tabla_plantas_ok.getModel().getValueAt(tabla_plantas_ok.getSelectedRow(), 0)) {
+								aux_plantao = p;
+								//System.out.println("ORIGEN " +p.getNombre());
+							}
+							if(p.getNombre()==(String) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 1)) {
+								aux_plantad = p;
+								//System.out.println("DESTINO " +p.getNombre());
+							}
+						}
+					
+						ArrayList<ArrayList<Planta>> rutas_aux= g.betterCaminos(aux_plantao, aux_plantad);
+						((DefaultTableModel)tabla_rutas.getModel()).setRowCount(0);
+						for (int i = 0; i < rutas_aux.size(); i++) {
+							Object[] auxRow = new Object[1];
+							auxRow[0] = "";
+							for (int j = 0; j < rutas_aux.get(i).size(); j++) {
+								
+								auxRow[0] += rutas_aux.get(i).get(j).getNombre()+" ";
+								
+							}
+							((DefaultTableModel)tabla_rutas.getModel()).addRow(auxRow);
+						}				
+					}
+				});
+				btnNewButton_28.setBounds(233, 72, 48, 23);
+				panel_5.add(btnNewButton_28);
+				
+				JButton btnNewButton_29 = new JButton("Guardar");
+				btnNewButton_29.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Grafo g = new Grafo();
+						
+						for (Planta p : Gestor_Planta.getPlantas()) {
+							if(p.getNombre()==(String) tabla_plantas_ok.getModel().getValueAt(tabla_plantas_ok.getSelectedRow(), 0)) {
+								aux_plantao = p;
+								//System.out.println("ORIGEN " +p.getNombre());
+							}
+							if(p.getNombre()==(String) tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 1)) {
+								aux_plantad = p;
+								//System.out.println("DESTINO " +p.getNombre());
+							}
+						}
+					
+						Orden_pedido orden = new Orden_pedido();
+						orden.setId((Integer)tabla_admin_orden.getModel().getValueAt(tabla_admin_orden.getSelectedRow(), 0));
+						orden.setId_camion(camion_queue.peek().getPatente());
+						Double mt = g.betterTiempo(aux_plantao, aux_plantad);
+						Double ml = g.betterLongitud(aux_plantao, aux_plantad);
+						Double costo_envio=camion_queue.peek().getCosto_por_hora()*mt+camion_queue.peek().getCosto_por_km()*ml;
+						orden.setCosto_envio(costo_envio);
+						Gestor_Pedido.procesarPedido(orden);
+						
+					}
+				});
+				btnNewButton_29.setBounds(483, 285, 89, 23);
+				panel_3.add(btnNewButton_29);
 				
 				JButton btnNewButton_20 = new JButton("Registrar");
 				btnNewButton_20.setBounds(483, 285, 89, 23);
 				registrar_orden.add(btnNewButton_20);
 				
 				fecha_entrega_reg_orden = new JFormattedTextField();
-				fecha_entrega_reg_orden.setBounds(108, 60, 138, 23);
+				fecha_entrega_reg_orden.setBounds(108, 53, 138, 23);
 				registrar_orden.add(fecha_entrega_reg_orden);
 				fecha_entrega_reg_orden.setColumns(10);
 				try {
 					dateMask = new MaskFormatter("##/##/####");
 					dateMask.install(fecha_entrega_reg_orden);
+					
+					JPanel menu_estadisticas = new JPanel();
+					contentPane.add(menu_estadisticas, MENUESTADISTICAS);
+					menu_estadisticas.setLayout(null);
+					
+					JTabbedPane tabbedPane_4 = new JTabbedPane(JTabbedPane.TOP);
+					tabbedPane_4.setBounds(0, 0, 587, 347);
+					menu_estadisticas.add(tabbedPane_4);
+					
+					JPanel flujo_max = new JPanel();
+					tabbedPane_4.addTab("Flujo m\u00E1ximo", null, flujo_max, null);
+					
+					JPanel page_rank = new JPanel();
+
+					tabbedPane_4.addTab("Page Rank", null, page_rank, null);
+					page_rank.setLayout(null);
+					
+					JScrollPane scrollPane_5 = new JScrollPane();
+					scrollPane_5.setBounds(190, 36, 166, 247);
+					page_rank.add(scrollPane_5);
+					
+					tabla_page_rank = new JTable();
+					tabla_page_rank.setModel(new DefaultTableModel(
+						new Object[][] {
+						},
+						new String[] {
+							"Planta"
+						}
+					));
+					scrollPane_5.setViewportView(tabla_page_rank);
+					
+					JButton btnNewButton_27 = new JButton("New button");
+					btnNewButton_27.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							
+						}
+					});
+					btnNewButton_27.setBounds(45, 69, 89, 23);
+					page_rank.add(btnNewButton_27);
+					
+					JPanel camino_minimo = new JPanel();
+					tabbedPane_4.addTab("Camino m\u00EDnimo", null, camino_minimo, null);
 				} catch (ParseException e1) {
 					e1.printStackTrace();
 				}
