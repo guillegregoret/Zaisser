@@ -19,11 +19,13 @@ import Dominio.Grafo;
 import Dominio.Insumo;
 import Dominio.Insumo_general;
 import Dominio.Insumo_liquido;
+import Dominio.Orden_pedido;
 import Dominio.Planta;
 import Dominio.Ruta;
 import Dominio.Stock;
 import Gestores.Gestor_Camion;
 import Gestores.Gestor_Insumo;
+import Gestores.Gestor_Pedido;
 import Gestores.Gestor_Planta;
 import Gestores.Gestor_Ruta;
 import Gestores.Gestor_Stock;
@@ -71,6 +73,9 @@ public class Zaisser extends JFrame {
 	private final static String MENUINSUMO="name_165698070879700";
 	private final static String MENUPRINCIPAL="name_5500757628000";
 	private final static String MENUSTOCK="name_74420176734100";
+	private final static String MENUORDENPEDIDO="name_106911205741000";
+	
+	
 	
 	
 	
@@ -111,6 +116,9 @@ public class Zaisser extends JFrame {
 	private JTable tabla_stock_pp;
 	private JTextField planta_pp;
 	private JTextField insumo_pp;
+	private JFormattedTextField fecha_entrega_reg_orden;
+	private JTable tabla_reg_orden;
+	private JTextField cant_reg_pedido;
 
 	public static void main(String[] args) {
 		try{
@@ -193,6 +201,15 @@ public class Zaisser extends JFrame {
 		});
 		btnNewButton_16.setBounds(10, 82, 142, 46);
 		menu_principal.add(btnNewButton_16);
+		
+		JButton btnNewButton_22 = new JButton("Administrar Ordenes de Pedido");
+		btnNewButton_22.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout)getContentPane().getLayout()).show(getContentPane(), MENUORDENPEDIDO);
+			}
+		});
+		btnNewButton_22.setBounds(162, 82, 142, 46);
+		menu_principal.add(btnNewButton_22);
 		
 		JPanel menu_camion = new JPanel();
 		contentPane.add(menu_camion, MENUCAMION);
@@ -1092,7 +1109,135 @@ public class Zaisser extends JFrame {
 				lblNewLabel_18.setBounds(204, 11, 46, 14);
 				punto_pedido.add(lblNewLabel_18);
 				
+				JPanel menu_orden_pedido = new JPanel();
+				contentPane.add(menu_orden_pedido, MENUORDENPEDIDO);
+				menu_orden_pedido.setLayout(null);
+				
+				JTabbedPane tabbedPane_3 = new JTabbedPane(JTabbedPane.TOP);
+				tabbedPane_3.setBounds(0, 0, 587, 347);
+				menu_orden_pedido.add(tabbedPane_3);
+				
+				JPanel registrar_orden = new JPanel();
+				tabbedPane_3.addTab("Registrar orden", null, registrar_orden, null);
+				registrar_orden.setLayout(null);
+				
 
+				
+				
+				JComboBox<String> platas_reg_orden = new JComboBox<String>();
+				for(int i = 0 ; i < plantas.size() ; i++) {
+					platas_reg_orden.addItem(plantas.get(i).getNombre());
+				}
+				platas_reg_orden.setBounds(108, 29, 138, 20);
+				registrar_orden.add(platas_reg_orden);
+				
+				
+				
+				
+				JScrollPane scrollPane_3 = new JScrollPane();
+				scrollPane_3.setBounds(39, 170, 509, 104);
+				registrar_orden.add(scrollPane_3);
+				
+				tabla_reg_orden = new JTable();
+				tabla_reg_orden.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"Insumo", "Cantidad", "Costo total insumo"
+					}
+				));
+				scrollPane_3.setViewportView(tabla_reg_orden);
+				
+				JLabel lblNewLabel_19 = new JLabel("Planta");
+				lblNewLabel_19.setBounds(20, 32, 46, 14);
+				registrar_orden.add(lblNewLabel_19);
+				
+				JLabel lblNewLabel_20 = new JLabel("Fecha entrega");
+				lblNewLabel_20.setBounds(20, 64, 78, 14);
+				registrar_orden.add(lblNewLabel_20);
+				
+				JPanel panel_2 = new JPanel();
+				panel_2.setBorder(new TitledBorder(null, "A\u00F1adir insumo a pedido", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+				panel_2.setBounds(39, 94, 509, 65);
+				registrar_orden.add(panel_2);
+				panel_2.setLayout(null);
+				
+				JComboBox<String> insumo_reg_pedido = new JComboBox<String>();
+				for (int i = 0; i < insumos.size(); i++) {
+					insumo_reg_pedido.addItem(insumos.get(i).getDescripcion());
+				}
+				insumo_reg_pedido.setBounds(20, 29, 138, 20);
+				panel_2.add(insumo_reg_pedido);
+				
+				cant_reg_pedido = new JTextField();
+				cant_reg_pedido.setBounds(252, 28, 105, 23);
+				panel_2.add(cant_reg_pedido);
+				cant_reg_pedido.setColumns(10);
+
+
+				
+				ArrayList<Object> aux_insumos = new ArrayList<Object>();
+				JButton btnNewButton_21 = new JButton("Agregar");
+				btnNewButton_21.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						//((DefaultTableModel)tabla_reg_orden.getModel()).setRowCount(0);
+						
+						Object[] auxRow = new Object[3];
+						auxRow[0] = insumo_reg_pedido.getSelectedItem().toString();
+						auxRow[1] = cant_reg_pedido.getText();
+						auxRow[2] = Gestor_Insumo.getCosto(insumo_reg_pedido.getSelectedItem().toString())*Integer.valueOf(cant_reg_pedido.getText());
+						//insumo_reg_pedido
+						//cant_reg_pedido
+						
+						((DefaultTableModel)tabla_reg_orden.getModel()).addRow(auxRow);
+						ArrayList<Integer> temp = new ArrayList<Integer>();
+						temp.add(Gestor_Insumo.getID(insumo_reg_pedido.getSelectedItem().toString()));
+						temp.add(Integer.valueOf(cant_reg_pedido.getText()));
+						aux_insumos.add(temp);
+					}
+				});
+				btnNewButton_21.setBounds(395, 28, 89, 23);
+				panel_2.add(btnNewButton_21);
+				
+				JLabel lblNewLabel_21 = new JLabel("Cantidad");
+				lblNewLabel_21.setBounds(185, 32, 46, 14);
+				panel_2.add(lblNewLabel_21);
+				
+				JPanel panel_3 = new JPanel();
+				tabbedPane_3.addTab("New tab", null, panel_3, null);
+				
+				JButton btnNewButton_20 = new JButton("Registrar");
+				btnNewButton_20.setBounds(483, 285, 89, 23);
+				registrar_orden.add(btnNewButton_20);
+				
+				fecha_entrega_reg_orden = new JFormattedTextField();
+				fecha_entrega_reg_orden.setBounds(108, 60, 138, 23);
+				registrar_orden.add(fecha_entrega_reg_orden);
+				fecha_entrega_reg_orden.setColumns(10);
+				try {
+					dateMask = new MaskFormatter("##/##/####");
+					dateMask.install(fecha_entrega_reg_orden);
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				
+				
+				btnNewButton_20.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Orden_pedido op = new Orden_pedido();
+						op.setPlanta_destino_id(Gestor_Planta.getID(platas_reg_orden.getSelectedItem().toString()));
+						try {
+							SimpleDateFormat out = new SimpleDateFormat("yyyy-MM-dd");
+							SimpleDateFormat in = new SimpleDateFormat("dd/MM/yyyy");
+							Date date = in.parse(fecha_entrega_reg_orden.getText());
+							op.setFecha_entrega((out.parse(out.format(date))));
+						} catch (ParseException e1) {
+							e1.printStackTrace();
+						}
+						//fecha_entrega_reg_orden
+						Gestor_Pedido.registrarPedido(op, aux_insumos);
+					}
+				});
 
 	}
 }

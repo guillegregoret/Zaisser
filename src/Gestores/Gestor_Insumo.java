@@ -208,6 +208,15 @@ public class Gestor_Insumo {
 		}
 		 return -1;
 	}
+	public static Double getCosto(String descripcion) {
+		 ArrayList<Insumo> insumos = Gestor_Insumo.getInsumo();
+		 for (int i = 0; i < insumos.size(); i++) {
+			if(insumos.get(i).getDescripcion().equals(descripcion)) {
+				return insumos.get(i).getCosto();
+			}
+		}
+		 return -1.0;
+	}
 	public static String getNombre(Integer id) {
 		 ArrayList<Insumo> insumos = Gestor_Insumo.getInsumo();
 		 for (int i = 0; i < insumos.size(); i++) {
